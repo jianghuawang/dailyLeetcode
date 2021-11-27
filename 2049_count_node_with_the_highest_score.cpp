@@ -5,10 +5,7 @@ class Solution {
 public:
     int countHighestScoreNodes(vector<int>& parents) {
         int n = parents.size(), root = -1;
-        unsigned long score = 0;
-        int res = 0;
         vector<vector<int>> adj_list(n);
-        vector<int> count(n, 1);
         for (int i = 0; i < n; ++i) {
             if (parents[i] < 0) {
                 root = i;
@@ -16,31 +13,30 @@ public:
                 adj_list[parents[i]].push_back(i);
             }
         }
-        postOrder(adj_list, count, root);
-        unsigned long curr = 1;
-        for (int i = 0; i < n; ++i) {
-            if (i == root) {
-                curr = 1;
-            } else {
-                curr = n - count[i];
-            }
-            for (int child : adj_list[i]) {
-                curr *= count[child];
-            }
-            if (curr > score) {
-                score = curr;
-                res = 1;
-            } else if (curr == score) {
-                ++res;
-            }
-        }
+        postOrder(adj_list, root);
         return res;
     }
     
-    int postOrder(vector<vector<int>>& adjList, vector<int>& count, int node) {
+    int postOrder(vector<vector<int>>& adjList, int node) {
+        unsigned long curr_score = 1;
+        int sub_tree_size = 1;
         for (int child : adjList[node]) {
-            count[node] += postOrder(adjList, count, child);
+            int child_size = postOrder(adjList, child);
+            sub_tree_size += child_size;
+            curr_score *= child_size;
         }
-        return count[node];
+        if (adjList.size() != sub_tree_size) {
+            curr_score *= (adjList.size() - sub_tree_size);
+        }
+        if (curr_score > score) {
+            score = curr_score;
+            res = 1;
+        } else if (curr_score == score) {
+            ++res;
+        }
+        return sub_tree_size;
     }
+private:
+    int res{0};
+    unsigned long score{0};
 };
