@@ -1,6 +1,6 @@
 #include <vector>
 #include <stack>
-#include <numeric>
+#include <algorithm>
 
 using std::vector;
 using std::stack;
@@ -8,23 +8,18 @@ using std::stack;
 class Solution {
 public:
     int binarySearchableNumbers(vector<int>& nums) {
-        int n = nums.size();
-        stack<int> incr, decr;
+        int n = nums.size(), res = 0;
+        int min_val = nums[n - 1], max_val = nums[0];
         vector<bool> searchable(n, true);
-        for (int i = 0; i < n; ++i) {
-            while (decr.size() && decr.top() < nums[i]) {
-                decr.pop();
-            }
-            if (decr.size()) { searchable[i] = false; }
-            decr.push(nums[i]);
+        for (int i = 1; i < n; ++i) {
+            if (max_val > nums[i]) { searchable[i] = false; }
+            max_val = std::max(max_val, nums[i]);
         }
         for (int j = n - 1; j >= 0; --j) {
-            while (incr.size() && incr.top() > nums[j]) {
-                incr.pop();
-            }
-            if (incr.size()) { searchable[j] = false; }
-            incr.push(nums[j]);
+            if (min_val < nums[j]) { searchable[j] = false; }
+            res += searchable[j];
+            min_val = std::min(min_val, nums[j]);
         }
-        return std::accumulate(searchable.begin(), searchable.end(), 0);
+        return res;
     }
 };
